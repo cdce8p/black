@@ -17,7 +17,7 @@ from typing import (
 from blib2to3.pytree import Node, Leaf
 from blib2to3.pgen2 import token
 
-from black.brackets import BracketTracker, DOT_PRIORITY
+from black.brackets import BracketTracker, DOT_PRIORITY, LOGIC_PRIORITY
 from black.mode import Mode
 from black.nodes import STANDALONE_COMMENT, TEST_DESCENDANTS
 from black.nodes import BRACKETS, OPENING_BRACKETS, CLOSING_BRACKETS
@@ -625,6 +625,13 @@ def can_omit_invisible_parens(
     max_priority = bt.max_delimiter_priority()
     if bt.delimiter_count_with_priority(max_priority) > 1:
         # With more than one delimiter of a kind the optional parentheses read better.
+        return False
+
+    if (
+        max_priority >= LOGIC_PRIORITY
+        and bt.delimiter_count_with_priority(max_priority) > 0
+    ):
+        # With at least one delimiter of kind LOGIC or above, optional parentheses are beter
         return False
 
     if max_priority == DOT_PRIORITY:
