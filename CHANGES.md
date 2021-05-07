@@ -14,6 +14,10 @@
 
 ## 21.5b1
 
+- Adjusted line wrapping by inserting optional parentheses more often to
+  improve readability and make the code style more consistent.
+  **Almost every project will be affected by it!** (#2163)
+
 ### _Black_
 
 - Refactor `src/black/__init__.py` into many files (#2206)
