@@ -189,11 +189,15 @@ def whitespace(leaf: Leaf, *, complex_subscript: bool) -> str:  # noqa: C901
         return DOUBLESPACE
 
     assert p is not None, f"INTERNAL ERROR: hand-made leaf without parent: {leaf!r}"
-    if t == token.COLON and p.type not in {
-        syms.subscript,
-        syms.subscriptlist,
-        syms.sliceop,
-    }:
+    if (
+        t == token.COLON
+        and p.type
+        not in {
+            syms.subscript,
+            syms.subscriptlist,
+            syms.sliceop,
+        }
+    ):
         return NO
 
     prev = leaf.prev_sibling
@@ -373,10 +377,14 @@ def whitespace(leaf: Leaf, *, complex_subscript: bool) -> str:  # noqa: C901
 
             prevp_parent = prevp.parent
             assert prevp_parent is not None
-            if prevp.type == token.COLON and prevp_parent.type in {
-                syms.subscript,
-                syms.sliceop,
-            }:
+            if (
+                prevp.type == token.COLON
+                and prevp_parent.type
+                in {
+                    syms.subscript,
+                    syms.sliceop,
+                }
+            ):
                 return NO
 
             elif prevp.type == token.EQUAL and prevp_parent.type == syms.argument:
@@ -603,10 +611,14 @@ def is_one_tuple_between(opening: Leaf, closing: Leaf, leaves: List[Leaf]) -> bo
         bracket_depth = leaf.bracket_depth
         if bracket_depth == depth and leaf.type == token.COMMA:
             commas += 1
-            if leaf.parent and leaf.parent.type in {
-                syms.arglist,
-                syms.typedargslist,
-            }:
+            if (
+                leaf.parent
+                and leaf.parent.type
+                in {
+                    syms.arglist,
+                    syms.typedargslist,
+                }
+            ):
                 commas += 1
                 break
 
@@ -621,26 +633,29 @@ def is_walrus_assignment(node: LN) -> bool:
 
 def is_simple_decorator_trailer(node: LN, last: bool = False) -> bool:
     """Return True iff `node` is a trailer valid in a simple decorator"""
-    return node.type == syms.trailer and (
-        (
-            len(node.children) == 2
-            and node.children[0].type == token.DOT
-            and node.children[1].type == token.NAME
-        )
-        # last trailer can be an argument-less parentheses pair
-        or (
-            last
-            and len(node.children) == 2
-            and node.children[0].type == token.LPAR
-            and node.children[1].type == token.RPAR
-        )
-        # last trailer can be arguments
-        or (
-            last
-            and len(node.children) == 3
-            and node.children[0].type == token.LPAR
-            # and node.children[1].type == syms.argument
-            and node.children[2].type == token.RPAR
+    return (
+        node.type == syms.trailer
+        and (
+            (
+                len(node.children) == 2
+                and node.children[0].type == token.DOT
+                and node.children[1].type == token.NAME
+            )
+            # last trailer can be an argument-less parentheses pair
+            or (
+                last
+                and len(node.children) == 2
+                and node.children[0].type == token.LPAR
+                and node.children[1].type == token.RPAR
+            )
+            # last trailer can be arguments
+            or (
+                last
+                and len(node.children) == 3
+                and node.children[0].type == token.LPAR
+                # and node.children[1].type == syms.argument
+                and node.children[2].type == token.RPAR
+            )
         )
     )
 

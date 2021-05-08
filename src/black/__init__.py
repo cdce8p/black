@@ -538,12 +538,16 @@ def reformat_one(
                 res_src_s = str(res_src)
                 if res_src_s in cache and cache[res_src_s] == get_cache_info(res_src):
                     changed = Changed.CACHED
-            if changed is not Changed.CACHED and format_file_in_place(
-                src, fast=fast, write_back=write_back, mode=mode
+            if (
+                changed is not Changed.CACHED
+                and format_file_in_place(
+                    src, fast=fast, write_back=write_back, mode=mode
+                )
             ):
                 changed = Changed.YES
-            if (write_back is WriteBack.YES and changed is not Changed.CACHED) or (
-                write_back is WriteBack.CHECK and changed is Changed.NO
+            if (
+                (write_back is WriteBack.YES and changed is not Changed.CACHED)
+                or (write_back is WriteBack.CHECK and changed is Changed.NO)
             ):
                 write_cache(cache, [src], mode)
         report.done(src, changed)
@@ -650,8 +654,9 @@ async def schedule_formatting(
                 changed = Changed.YES if task.result() else Changed.NO
                 # If the file was written back or was successfully checked as
                 # well-formatted, store this information in the cache.
-                if write_back is WriteBack.YES or (
-                    write_back is WriteBack.CHECK and changed is Changed.NO
+                if (
+                    write_back is WriteBack.YES
+                    or (write_back is WriteBack.CHECK and changed is Changed.NO)
                 ):
                     sources_to_cache.append(src)
                 report.done(src, changed)
@@ -887,8 +892,9 @@ def get_features_used(node: Node) -> Set[Feature]:
             features.add(Feature.ASSIGNMENT_EXPRESSIONS)
 
         elif n.type == syms.decorator:
-            if len(n.children) > 1 and not is_simple_decorator_expression(
-                n.children[1]
+            if (
+                len(n.children) > 1
+                and not is_simple_decorator_expression(n.children[1])
             ):
                 features.add(Feature.RELAXED_DECORATORS)
 

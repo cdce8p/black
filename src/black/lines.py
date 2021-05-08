@@ -121,9 +121,10 @@ class Line:
     @property
     def is_stub_class(self) -> bool:
         """Is this line a class definition with a body consisting only of "..."?"""
-        return self.is_class and self.leaves[-3:] == [
-            Leaf(token.DOT, ".") for _ in range(3)
-        ]
+        return (
+            self.is_class
+            and self.leaves[-3:] == [Leaf(token.DOT, ".") for _ in range(3)]
+        )
 
     @property
     def is_def(self) -> bool:
@@ -137,11 +138,14 @@ class Line:
             second_leaf: Optional[Leaf] = self.leaves[1]
         except IndexError:
             second_leaf = None
-        return (first_leaf.type == token.NAME and first_leaf.value == "def") or (
-            first_leaf.type == token.ASYNC
-            and second_leaf is not None
-            and second_leaf.type == token.NAME
-            and second_leaf.value == "def"
+        return (
+            (first_leaf.type == token.NAME and first_leaf.value == "def")
+            or (
+                first_leaf.type == token.ASYNC
+                and second_leaf is not None
+                and second_leaf.type == token.NAME
+                and second_leaf.value == "def"
+            )
         )
 
     @property
@@ -182,8 +186,9 @@ class Line:
         try:
             last_leaf = self.leaves[-1]
             ignored_ids.add(id(last_leaf))
-            if last_leaf.type == token.COMMA or (
-                last_leaf.type == token.RPAR and not last_leaf.value
+            if (
+                last_leaf.type == token.COMMA
+                or (last_leaf.type == token.RPAR and not last_leaf.value)
             ):
                 # When trailing commas or optional parens are inserted by Black for
                 # consistency, comments after the previous last element are not moved
@@ -203,9 +208,12 @@ class Line:
         for leaf_id, comments in self.comments.items():
             for comment in comments:
                 if is_type_comment(comment):
-                    if comment_seen or (
-                        not is_type_comment(comment, " ignore")
-                        and leaf_id not in ignored_ids
+                    if (
+                        comment_seen
+                        or (
+                            not is_type_comment(comment, " ignore")
+                            and leaf_id not in ignored_ids
+                        )
                     ):
                         return True
 
@@ -345,8 +353,9 @@ class Line:
 
             if subscript_start.type == syms.subscriptlist:
                 subscript_start = child_towards(subscript_start, leaf)
-        return subscript_start is not None and any(
-            n.type in TEST_DESCENDANTS for n in subscript_start.pre_order()
+        return (
+            subscript_start is not None
+            and any(n.type in TEST_DESCENDANTS for n in subscript_start.pre_order())
         )
 
     def enumerate_with_length(
@@ -488,8 +497,9 @@ class EmptyLineTracker:
 
             return 0, 0
 
-        if self.previous_line.depth < current_line.depth and (
-            self.previous_line.is_class or self.previous_line.is_def
+        if (
+            self.previous_line.depth < current_line.depth
+            and (self.previous_line.is_class or self.previous_line.is_def)
         ):
             return 0, 0
 
@@ -510,8 +520,9 @@ class EmptyLineTracker:
                 else:
                     newlines = 1
             elif (
-                current_line.is_def or current_line.is_decorator
-            ) and not self.previous_line.is_def:
+                (current_line.is_def or current_line.is_decorator)
+                and not self.previous_line.is_def
+            ):
                 # Blank line between a block of functions (maybe with preceding
                 # decorators) and a block of non-functions
                 newlines = 1

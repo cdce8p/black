@@ -862,10 +862,13 @@ def should_split_line(line: Line, opening_bracket: Leaf) -> bool:
     except (IndexError, ValueError):
         return False
 
-    return max_priority == COMMA_PRIORITY and (
-        (line.mode.magic_trailing_comma and trailing_comma)
-        # always explode imports
-        or opening_bracket.parent.type in {syms.atom, syms.import_from}
+    return (
+        max_priority == COMMA_PRIORITY
+        and (
+            (line.mode.magic_trailing_comma and trailing_comma)
+            # always explode imports
+            or opening_bracket.parent.type in {syms.atom, syms.import_from}
+        )
     )
 
 

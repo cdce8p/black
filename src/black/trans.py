@@ -511,10 +511,14 @@ class StringMerger(CustomSplitMapMixin, StringTransformer):
             i = string_idx
             found_sa_comment = False
             is_valid_index = is_valid_index_factory(line.leaves)
-            while is_valid_index(i) and line.leaves[i].type in [
-                token.STRING,
-                STANDALONE_COMMENT,
-            ]:
+            while (
+                is_valid_index(i)
+                and line.leaves[i].type
+                in [
+                    token.STRING,
+                    STANDALONE_COMMENT,
+                ]
+            ):
                 if line.leaves[i].type == STANDALONE_COMMENT:
                     found_sa_comment = True
                 elif found_sa_comment:
@@ -617,8 +621,12 @@ class StringParenStripper(StringTransformer):
             # That LPAR should NOT be preceded by a function name or a closing
             # bracket (which could be a function which returns a function or a
             # list/dictionary that contains a function)...
-            if is_valid_index(idx - 2) and (
-                LL[idx - 2].type == token.NAME or LL[idx - 2].type in CLOSING_BRACKETS
+            if (
+                is_valid_index(idx - 2)
+                and (
+                    LL[idx - 2].type == token.NAME
+                    or LL[idx - 2].type in CLOSING_BRACKETS
+                )
             ):
                 continue
 
@@ -634,27 +642,30 @@ class StringParenStripper(StringTransformer):
             if is_valid_index(idx - 2):
                 # mypy can't quite follow unless we name this
                 before_lpar = LL[idx - 2]
-                if token.PERCENT in {leaf.type for leaf in LL[idx - 1 : next_idx]} and (
-                    (
-                        before_lpar.type
-                        in {
-                            token.STAR,
-                            token.AT,
-                            token.SLASH,
-                            token.DOUBLESLASH,
-                            token.PERCENT,
-                            token.TILDE,
-                            token.DOUBLESTAR,
-                            token.AWAIT,
-                            token.LSQB,
-                            token.LPAR,
-                        }
-                    )
-                    or (
-                        # only unary PLUS/MINUS
-                        before_lpar.parent
-                        and before_lpar.parent.type == syms.factor
-                        and (before_lpar.type in {token.PLUS, token.MINUS})
+                if (
+                    token.PERCENT in {leaf.type for leaf in LL[idx - 1 : next_idx]}
+                    and (
+                        (
+                            before_lpar.type
+                            in {
+                                token.STAR,
+                                token.AT,
+                                token.SLASH,
+                                token.DOUBLESLASH,
+                                token.PERCENT,
+                                token.TILDE,
+                                token.DOUBLESTAR,
+                                token.AWAIT,
+                                token.LSQB,
+                                token.LPAR,
+                            }
+                        )
+                        or (
+                            # only unary PLUS/MINUS
+                            before_lpar.parent
+                            and before_lpar.parent.type == syms.factor
+                            and (before_lpar.type in {token.PLUS, token.MINUS})
+                        )
                     )
                 ):
                     continue
@@ -667,12 +678,16 @@ class StringParenStripper(StringTransformer):
             ):
                 # That RPAR should NOT be followed by anything with higher
                 # precedence than PERCENT
-                if is_valid_index(next_idx + 1) and LL[next_idx + 1].type in {
-                    token.DOUBLESTAR,
-                    token.LSQB,
-                    token.LPAR,
-                    token.DOT,
-                }:
+                if (
+                    is_valid_index(next_idx + 1)
+                    and LL[next_idx + 1].type
+                    in {
+                        token.DOUBLESTAR,
+                        token.LSQB,
+                        token.LPAR,
+                        token.DOT,
+                    }
+                ):
                     continue
 
                 return Ok(string_idx)
@@ -782,17 +797,22 @@ class BaseStringSplitter(StringTransformer):
                 "The string itself is not what is causing this line to be too long."
             )
 
-        if not string_leaf.parent or [L.type for L in string_leaf.parent.children] == [
-            token.STRING,
-            token.NEWLINE,
-        ]:
+        if (
+            not string_leaf.parent
+            or [L.type for L in string_leaf.parent.children]
+            == [
+                token.STRING,
+                token.NEWLINE,
+            ]
+        ):
             return TErr(
                 f"This string ({string_leaf.value}) appears to be pointless (i.e. has"
                 " no parent)."
             )
 
-        if id(line.leaves[string_idx]) in line.comments and contains_pragma_comment(
-            line.comments[id(line.leaves[string_idx])]
+        if (
+            id(line.leaves[string_idx]) in line.comments
+            and contains_pragma_comment(line.comments[id(line.leaves[string_idx])])
         ):
             return TErr(
                 "Line appears to end with an inline pragma comment. Splitting the line"
@@ -1018,8 +1038,9 @@ class StringSplitter(CustomSplitMapMixin, BaseStringSplitter):
         # contain any f-expressions, but ONLY if the original f-string
         # contains at least one f-expression. Otherwise, we will alter the AST
         # of the program.
-        drop_pointless_f_prefix = ("f" in prefix) and re.search(
-            self.RE_FEXPR, LL[string_idx].value, re.VERBOSE
+        drop_pointless_f_prefix = (
+            ("f" in prefix)
+            and re.search(self.RE_FEXPR, LL[string_idx].value, re.VERBOSE)
         )
 
         first_string_line = True
@@ -1438,9 +1459,10 @@ class StringParenWrapper(CustomSplitMapMixin, BaseStringSplitter):
         """
         # If this line is apart of a return/yield statement and the first leaf
         # contains either the "return" or "yield" keywords...
-        if parent_type(LL[0]) in [syms.return_stmt, syms.yield_expr] and LL[
-            0
-        ].value in ["return", "yield"]:
+        if (
+            parent_type(LL[0]) in [syms.return_stmt, syms.yield_expr]
+            and LL[0].value in ["return", "yield"]
+        ):
             is_valid_index = is_valid_index_factory(LL)
 
             idx = 2 if is_valid_index(1) and is_empty_par(LL[1]) else 1
