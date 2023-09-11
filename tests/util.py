@@ -9,7 +9,7 @@ from typing import Any, Iterator, List, Optional, Tuple
 
 import black
 from black.debug import DebugVisitor
-from black.mode import TargetVersion
+from black.mode import Mode, TargetVersion
 from black.output import diff, err, out
 
 PYTHON_SUFFIX = ".py"
@@ -28,7 +28,7 @@ PY36_VERSIONS = {
     TargetVersion.PY39,
 }
 
-DEFAULT_MODE = black.Mode()
+DEFAULT_MODE = Mode()
 ff = partial(black.format_file_in_place, mode=DEFAULT_MODE, fast=True)
 fs = partial(black.format_str, mode=DEFAULT_MODE)
 
@@ -64,7 +64,7 @@ class FormatFailure(Exception):
 def assert_format(
     source: str,
     expected: str,
-    mode: black.Mode = DEFAULT_MODE,
+    mode: Mode = DEFAULT_MODE,
     *,
     fast: bool = False,
     minimum_version: Optional[Tuple[int, int]] = None,
@@ -114,7 +114,7 @@ def assert_format(
 def _assert_format_inner(
     source: str,
     expected: Optional[str] = None,
-    mode: black.Mode = DEFAULT_MODE,
+    mode: Mode = DEFAULT_MODE,
     *,
     fast: bool = False,
     minimum_version: Optional[Tuple[int, int]] = None,
