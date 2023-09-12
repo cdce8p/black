@@ -65,7 +65,6 @@ jobs:
           CIBW_ARCHS_LINUX: x86_64
           CIBW_ARCHS_MACOS: x86_64 arm64
           CIBW_ARCHS_WINDOWS: AMD64
-          CIBW_BUILD: cp312-*
       - name: generate matrix (PR)
         if: github.event_name == 'pull_request'
         run: |
@@ -73,7 +72,7 @@ jobs:
           | pyp 'json.dumps({"only": x, "os": "ubuntu-latest"})' \
           | pyp 'json.dumps(list(map(json.loads, lines)))' > /tmp/matrix
         env:
-          CIBW_BUILD: "cp38-* cp311-*"
+          CIBW_BUILD: "cp38-* cp311-* cp312-*"
           CIBW_ARCHS_LINUX: x86_64
       - id: set-matrix
         run: echo "include=$(cat /tmp/matrix)" | tee -a $GITHUB_OUTPUT
